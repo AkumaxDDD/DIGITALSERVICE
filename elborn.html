@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>El Born · Menú Digital Interactivo | La Rioja</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: Inter para legibilidad extrema -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow-y: auto;
+            background: #1e1915; /* fondo neutro oscuro */
+            font-family: 'Inter', sans-serif;
+            color: #2c241f;
+            padding: clamp(0.75rem, 3vw, 1.5rem);
+        }
+
+        /* contenedor principal: ancho máximo y centrado */
+        .menu-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fefaf2;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 25px 40px -12px rgba(0,0,0,0.35);
+            transition: all 0.2s ease;
+        }
+
+        /* HEADER con logo y marca */
+        .brand-header {
+            background: #2f231e;
+            padding: 1.2rem 1rem;
+            text-align: center;
+            border-bottom: 4px solid #d9a13b;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(8px, 4vw, 18px);
+            flex-wrap: wrap;
+            margin-bottom: 0.4rem;
+        }
+
+        .logo-icon {
+            background: #d9a13b;
+            width: clamp(45px, 10vw, 60px);
+            height: clamp(45px, 10vw, 60px);
+            border-radius: 60px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.6rem, 6vw, 2.2rem);
+            color: #2f231e;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .logo-text {
+            font-size: clamp(1.6rem, 7vw, 2.2rem);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #f9e2b7;
+            text-shadow: 2px 2px 0 #4a2c1a;
+        }
+
+        .logo-text span {
+            font-weight: 500;
+            font-size: clamp(0.7rem, 3vw, 0.95rem);
+            background: #b57c2c;
+            padding: 0.2rem 0.6rem;
+            border-radius: 40px;
+            margin-left: 6px;
+            vertical-align: middle;
+            color: #1f140e;
+        }
+
+        .brand-tagline {
+            color: #f2d9b0;
+            font-size: clamp(0.7rem, 3vw, 0.85rem);
+            font-weight: 500;
+            margin-top: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        .menu-content {
+            padding: clamp(1rem, 4vw, 2rem) clamp(0.9rem, 4vw, 1.5rem);
+        }
+
+        .welcome-message {
+            background: #fff1e0;
+            border-left: 6px solid #d9a13b;
+            padding: 0.9rem 1rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            font-size: clamp(0.85rem, 3vw, 1rem);
+            color: #3e2c22;
+        }
+
+        /* CATEGORÍAS */
+        .category {
+            margin-bottom: 2rem;
+        }
+
+        .category-title {
+            font-size: clamp(1.3rem, 5vw, 1.8rem);
+            font-weight: 800;
+            color: #2c1b12;
+            border-bottom: 3px dashed #e2c7a3;
+            display: inline-block;
+            margin-bottom: 1rem;
+            padding-right: 0.8rem;
+        }
+
+        .category-title i {
+            font-size: 0.9em;
+            color: #bb7a2e;
+            margin-right: 8px;
+        }
+
+        /* GRID DE PRODUCTOS: flex column en móvil, pero en tablet podemos poner 2 columnas? 
+           Pero para una experiencia tipo catálogo, mantener una columna es más claro, pero haremos que 
+           en pantallas >=600px los productos se muestren en grid de 2 si el ancho lo permite, 
+           pero respetando la legibilidad. Decido hacerlo responsive con grid automático */
+        .products-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Para tablets y pantallas más anchas, dos columnas limpias (mejor aprovechamiento) */
+        @media (min-width: 580px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.2rem;
+            }
+        }
+
+        /* Para pantallas muy grandes (ej. desktop) se ve genial con 2 columnas centradas */
+        @media (min-width: 900px) {
+            .menu-container {
+                max-width: 960px;
+            }
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.25s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 30px rgba(0,0,0,0.1);
+        }
+
+        .product-img {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            background: #f3ede5;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.02);
+        }
+
+        .product-info {
+            padding: 1rem 1rem 1.2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-title {
+            font-size: clamp(1.1rem, 4vw, 1.35rem);
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .product-name {
+            color: #2c1b12;
+        }
+
+        .product-price {
+            background: #faeedb;
+            padding: 0.2rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #b45f1b;
+            white-space: nowrap;
+        }
+
+        .product-desc {
+            font-size: clamp(0.75rem, 3vw, 0.85rem);
+            color: #5e4b3a;
+            line-height: 1.4;
+            margin: 0.5rem 0 1rem;
+            flex: 1;
+        }
+
+        .btn-whatsapp {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 0.75rem 0;
+            width: 100%;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        .btn-whatsapp i {
+            font-size: 1.2rem;
+        }
+
+        .btn-whatsapp:active {
+            transform: scale(0.97);
+        }
+
+        /* FOOTER solo info real, sin QR */
+        .footer-info {
+            background: #f1e7db;
+            margin-top: 2rem;
+            padding: 1.2rem;
+            border-radius: 1.5rem;
+            text-align: center;
+            border: 1px solid #e7d8c6;
+        }
+
+        .address {
+            font-weight: 700;
+            color: #4e3626;
+            margin-bottom: 6px;
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
+        }
+
+        .hours {
+            font-size: clamp(0.75rem, 3vw, 0.85rem);
+            color: #6f543e;
+            margin-top: 4px;
+        }
+
+        .demo-note {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 14px;
+            color: #aa8f72;
+            border-top: 1px solid #ddd0bb;
+            padding-top: 12px;
+        }
+
+        /* Ajustes extra para pantallas muy pequeñas (menos de 400px) */
+        @media (max-width: 420px) {
+            .product-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .product-price {
+                white-space: normal;
+                align-self: flex-start;
+            }
+            .btn-whatsapp {
+                padding: 0.65rem 0;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Para orientación landscape en móviles: mejor usar 2 columnas */
+        @media (max-width: 750px) and (orientation: landscape) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .product-img {
+                aspect-ratio: 16/9;
+            }
+        }
+/* SCROLL PERSONALIZADO EXCLUSIVO PARA EL BORN - NARANJA/DORADO */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #2f231e;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #d9a13b;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f5b642;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d9a13b #2f231e;
+}
+
+    </style>
+</head>
+<body>
+<div class="menu-container">
+    <div class="brand-header">
+        <div class="logo-area">
+            <div class="logo-icon">
+                <i class="fas fa-utensils"></i>
+            </div>
+            <div class="logo-text">
+                EL BORN<span>🍔☕</span>
+            </div>
+            <div class="logo-icon" style="background:#b87a32;">
+                <i class="fas fa-mug-hot"></i>
+            </div>
+        </div>
+        <div class="brand-tagline">
+            <i class="fas fa-fire"></i> Sabor artesanal · Hamburguesería & Café | La Rioja Capital
+        </div>
+    </div>
+
+    <div class="menu-content">
+        <div class="welcome-message">
+            <i class="fas fa-hand-peace"></i> ¡Bienvenidos a El Born! Sabor real directamente a tu mesa o delivery.<br>
+            📱 Tap & Pedí: cada plato tiene botón directo a WhatsApp.
+        </div>
+
+        <!-- CATEGORÍA: Las Burgers Más Vendidas -->
+        <div class="category">
+            <div class="category-title">
+                <i class="fas fa-hamburger"></i> Las Burgers Más Vendidas
+            </div>
+            <div class="products-grid">
+                <!-- Big Born -->
+                <div class="product-card">
+                    <img class="product-img" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=400&fit=crop" alt="Smash burger gourmet" loading="lazy">
+                <div class="product-info">
+                  <div class="product-title">
+                    <span class="product-name">🔥 La Big Born</span>
+                    <span class="product-price">$11.500 ARS</span>
+                  </div>
+                  <div class="product-desc">
+                    Doble carne smash (120g), doble cheddar, bacon crujiente y salsa secreta. ¡Incluye papas fritas!
+                  </div>
+                  <a class="btn-whatsapp" href="#" target="_blank" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20El%20Born%2C%20quiero%20pedir%20la%20hamburguesa%20Big%20Born%20con%20papas'); return false;">
+                            <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                        </a>
+                </div>
+                </div>
+
+                <!-- BBQ Crispy Bacon -->
+                <div class="product-card">
+                    <img class="product-img" src="https://images.unsplash.com/photo-1549611016-3a70d82b5040?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="BBQ Burger" loading="lazy">
+                    <div class="product-info">
+                        <div class="product-title">
+                            <span class="product-name">🍔 BBQ Crispy Bacon</span>
+                            <span class="product-price">$12.200 ARS</span>
+                        </div>
+                        <div class="product-desc">
+                            Carne angus, salsa barbacoa ahumada, cebolla caramelizada, queso provolone y panceta crocante. Con papas rústicas.
+                        </div>
+                        <a class="btn-whatsapp" href="#" target="_blank" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20El%20Born%2C%20quiero%20pedir%20la%20hamburguesa%20BBQ%20Crispy%20Bacon%20con%20papas'); return false;">
+                            <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Veggie Born -->
+                <div class="product-card">
+                    <img class="product-img" src="https://plus.unsplash.com/premium_photo-1664648063548-50808d58f061?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Veggie burger" loading="lazy">
+                    <div class="product-info">
+                        <div class="product-title">
+                            <span class="product-name">🌱 Veggie Born</span>
+                            <span class="product-price">$10.900 ARS</span>
+                        </div>
+                        <div class="product-desc">
+                            Burger de garbanzos y quinoa, palta, lechuga hidropónica, cebolla morada, mayonesa de hierbas. Incluye batatas fritas.
+                        </div>
+                        <a class="btn-whatsapp" href="https://wa.me/5493804123456?text=Hola%20El%20Born%2C%20quiero%20pedir%20la%20hamburguesa%20Veggie%20Born%20con%20batatas" target="_blank">
+                            <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CATEGORÍA: Cafetería de Especialidad -->
+        <div class="category">
+            <div class="category-title">
+                <i class="fas fa-mug-hot"></i> Cafetería de Especialidad
+            </div>
+            <div class="products-grid">
+                <div class="product-card">
+                    <img class="product-img" src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&h=400&fit=crop" alt="Capuccino" loading="lazy">
+                    <div class="product-info">
+                        <div class="product-title">
+                            <span class="product-name">☕ Capuccino Supremo</span>
+                            <span class="product-price">$4.200 ARS</span>
+                        </div>
+                        <div class="product-desc">
+                            Espresso doble, leche texturizada cremosa y una lluvia de cacao fino ecuatoriano.
+                        </div>
+                        <a class="btn-whatsapp" href="https://wa.me/5493804123456?text=Hola%20El%20Born%2C%20quiero%20pedir%20un%20Capuccino%20Supremo" target="_blank">
+                            <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                        </a>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <img class="product-img" src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&h=400&fit=crop" alt="Latte art" loading="lazy">
+                    <div class="product-info">
+                        <div class="product-title">
+                            <span class="product-name">🎨 Latte Art Especial</span>
+                            <span class="product-price">$3.900 ARS</span>
+                        </div>
+                        <div class="product-desc">
+                            Espresso suave, leche vaporizada y un diseño único hecho a mano. Con galleta de mantequilla.
+                        </div>
+                        <a class="btn-whatsapp" href="https://wa.me/5493804123456?text=Hola%20El%20Born%2C%20quiero%20pedir%20un%20Latte%20Art%20Especial" target="_blank">
+                            <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                        </a>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <img class="product-img" src="https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=600&h=400&fit=crop" alt="Mocha" loading="lazy">
+                    <div class="product-info">
+                        <div class="product-title">
+                            <span class="product-name">🍫 Mocha Born</span>
+                            <span class="product-price">$4.600 ARS</span>
+                        </div>
+                        <div class="product-desc">
+                            Espresso + chocolate belga derretido, crema batida y un toque de canela.
+                        </div>
+                        <a class="btn-whatsapp" href="https://wa.me/5493804123456?text=Hola%20El%20Born%2C%20quiero%20pedir%20un%20Mocha%20Born" target="_blank">
+                            <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CATEGORÍA: Refrescantes -->
+        <div class="category">
+            <div class="category-title">
+                <i class="fas fa-wine-bottle"></i> Refrescantes
+            </div>
+            <div class="products-grid">
+                <div class="product-card">
+                    <img class="product-img" src="https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8bGltb25hZGF8ZW58MHx8MHx8fDA%3D" alt="Limonada" loading="lazy">
+                    <div class="product-info">
+                        <div class="product-title">
+                            <span class="product-name">🍹 Limonada Born</span>
+                            <span class="product-price">$3.500 ARS</span>
+                        </div>
+                        <div class="product-desc">
+                            Limones exprimidos, hierbabuena, jengibre y un toque de miel. Muy refrescante.
+                        </div>
+                        <a class="btn-whatsapp" href="https://wa.me/5491234567890?text=Hola%20El%20Born%2C%20quiero%20pedir%20una%20Limonada%20Born" target="_blank">
+                            <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER con datos reales del negocio (sin ningún QR decorativo) -->
+        <div class="footer-info">
+            <div class="address">
+                <i class="fas fa-map-marker-alt"></i> 📍 Av. Ramírez de Velasco 850 · La Rioja Capital
+            </div>
+            <div class="hours">
+                🕒 Martes a Domingo de 12:00 a 23:00 hs | Envíos a todo la ciudad
+            </div>
+            <div class="demo-note">
+                <i class="fab fa-whatsapp"></i> Pedí por WhatsApp: +54 9 3804 123456 · Menú 100% interactivo<br>
+                *Precios vigentes en Mayo 2026 · Stock sujeto a disponibilidad
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+  function sendToWhatsApp(url) {
+    // Intenta redirigir la ventana principal (el portafolio)
+    if (window.top !== window.self) {
+      window.top.location.href = url;
+    } else {
+      window.location.href = url;
+    }
+  }
+</script>
+</body>
+</html>

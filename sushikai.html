@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Sushi Kai · Menú Digital Japonés</title>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Google Fonts: tipografía limpia y elegante -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0b0e12;
+      font-family: 'Inter', sans-serif;
+      color: #eef2f5;
+      padding: 1rem;
+    }
+
+    .menu-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #11161c;
+      border-radius: 2rem;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 215, 0, 0.2);
+    }
+
+    /* Header japonés */
+    .brand-header {
+      background: linear-gradient(145deg, #1a1f2a, #0f1319);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      border-bottom: 3px solid #e6b422;
+      position: relative;
+    }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .logo-icon {
+      background: #e6b422;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #1e2a2e;
+      box-shadow: 0 0 12px rgba(230, 180, 34, 0.5);
+    }
+    .logo-text {
+      font-size: 2rem;
+      font-weight: 800;
+      font-family: 'Noto Serif JP', serif;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #f9e0a0, #e6b422);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .logo-text span {
+      font-size: 0.9rem;
+      background: #2a2f3a;
+      padding: 2px 8px;
+      border-radius: 40px;
+      color: #e6b422;
+      margin-left: 6px;
+      font-weight: 400;
+    }
+    .brand-tagline {
+      font-family: 'Noto Serif JP', serif;
+      color: #b9c7d4;
+      font-size: 0.8rem;
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+
+    /* Contenido */
+    .menu-content {
+      padding: 1.5rem 1.2rem;
+    }
+
+    .welcome-message {
+      background: rgba(230, 180, 34, 0.12);
+      border-left: 4px solid #e6b422;
+      padding: 0.8rem 1rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+      backdrop-filter: blur(4px);
+    }
+    .welcome-message i {
+      color: #e6b422;
+      margin-right: 8px;
+    }
+
+    .category {
+      margin-bottom: 2.2rem;
+    }
+    .category-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: 'Noto Serif JP', serif;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid rgba(230, 180, 34, 0.4);
+      padding-bottom: 6px;
+      margin-bottom: 1rem;
+    }
+    .category-title i {
+      color: #e6b422;
+      font-size: 1.3rem;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+    }
+    @media (min-width: 560px) {
+      .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .product-card {
+      background: #1a212a;
+      border-radius: 1.2rem;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.25s;
+      border: 1px solid #2a3440;
+      display: flex;
+      flex-direction: column;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4);
+      border-color: #e6b422;
+    }
+    .product-img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      background: #2a2f3a;
+    }
+    .product-info {
+      padding: 0.9rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .product-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+    }
+    .product-name {
+      color: #f0f3f8;
+    }
+    .product-price {
+      background: #2a353f;
+      padding: 0.2rem 0.6rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #e6b422;
+    }
+    .product-desc {
+      font-size: 0.75rem;
+      color: #a6b8cc;
+      line-height: 1.4;
+      margin: 0.4rem 0 0.8rem;
+      flex: 1;
+    }
+    .btn-whatsapp {
+      background: #25D366;
+      border: none;
+      color: white;
+      padding: 0.6rem 0;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+      font-family: inherit;
+    }
+    .btn-whatsapp:hover {
+      background: #1da15b;
+    }
+    .btn-whatsapp:active {
+      transform: scale(0.97);
+    }
+
+    /* Footer */
+    .footer-info {
+      background: #0e131a;
+      margin-top: 2rem;
+      padding: 1rem;
+      text-align: center;
+      border-radius: 1rem;
+      border-top: 1px solid #2a3440;
+    }
+    .address {
+      font-weight: 500;
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+      color: #b9c7d4;
+    }
+    .hours {
+      font-size: 0.7rem;
+      color: #7a8b9f;
+    }
+    .demo-note {
+      font-size: 0.65rem;
+      margin-top: 10px;
+      color: #5f6f80;
+    }
+
+    i.fa, i.fab, i.fas {
+      pointer-events: none;
+    }
+    /* SCROLL PERSONALIZADO EXCLUSIVO PARA SUSHI KAI - ROJO/DORADO ESTILO JAPONÉS */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1a1f2a;
+  border-radius: 20px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c92a1f;
+  border-radius: 20px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e6b422;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c92a1f #1a1f2a;
+}
+  </style>
+</head>
+<body>
+<div class="menu-container">
+  <div class="brand-header">
+    <div class="logo-area">
+      <div class="logo-icon">
+        <i class="fas fa-fish"></i>
+      </div>
+      <div class="logo-text">
+        SUSHI KAI<span>🍣</span>
+      </div>
+    </div>
+    <div class="brand-tagline">
+      鮮度と伝統 · Frescura y tradición japonesa
+    </div>
+  </div>
+
+  <div class="menu-content">
+    <div class="welcome-message">
+      <i class="fas fa-hand-peace"></i> いらっしゃいませ！ Bienvenidos a Sushi Kai. Productos premium, preparación artesanal. Pedí con un tap.
+    </div>
+
+    <!-- Sushi (Nigiri) -->
+    <div class="category">
+      <div class="category-title"><i class="fas fa-fish"></i> Sushi / Nigiri</div>
+      <div class="products-grid">
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1617196034183-421b4917c92d?w=500&h=350&fit=crop" alt="Salmón nigiri" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">🍣 Salmón Rose</span><span class="product-price">$2.200 ARS</span></div>
+            <div class="product-desc">Nigiri de salmón fresco (2 piezas) con toque de sésamo y wasabi.</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20el%20nigiri%20Salm%C3%B3n%20Rose%20(2%20piezas)')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1553621042-f6e147245754?w=500&h=350&fit=crop" alt="Atún nigiri" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">🐟 Atún Akami</span><span class="product-price">$2.500 ARS</span></div>
+            <div class="product-desc">Nigiri de atún rojo (2 piezas) con cebollín y salsa ponzu.</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20el%20nigiri%20At%C3%BAn%20Akami%20(2%20piezas)')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1569945393177-ffe6dc868c0d?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Ebi nigiri" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">🦐 Ebi Camarón</span><span class="product-price">$2.400 ARS</span></div>
+            <div class="product-desc">Nigiri de camarón cocido (2 piezas) con mayonesa japonesa.</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20el%20nigiri%20Ebi%20Camar%C3%B3n%20(2%20piezas)')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rolls Especiales -->
+    <div class="category">
+      <div class="category-title"><i class="fas fa-roll"></i> Rolls Especiales</div>
+      <div class="products-grid">
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=500&h=350&fit=crop" alt="California Roll" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">🌊 California Roll</span><span class="product-price">$4.200 ARS</span></div>
+            <div class="product-desc">Relleno de palta, pepino, kanikama y sésamo (8 piezas).</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20el%20California%20Roll%20(8%20piezas)')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1659192963263-c4e3b53586db?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Spicy Salmon Roll" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">🔥 Spicy Salmon</span><span class="product-price">$4.900 ARS</span></div>
+            <div class="product-desc">Salmón picante, palta, salsa spicy, cebolla crocante (6 piezas).</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20el%20Spicy%20Salmon%20Roll%20(6%20piezas)')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1583623025817-d180a2221d0a?w=500&h=350&fit=crop" alt="Dragon Roll" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">🐉 Dragon Roll</span><span class="product-price">$5.500 ARS</span></div>
+            <div class="product-desc">Relleno de tempura de langostino, palta, cubierto con láminas de aguacate y salsa eel.</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20el%20Dragon%20Roll%20(8%20piezas)')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sashimi -->
+    <div class="category">
+      <div class="category-title"><i class="fas fa-utensils"></i> Sashimi</div>
+      <div class="products-grid">
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=500&h=350&fit=crop" alt="Sashimi variado" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">📦 Sashimi Moriawase</span><span class="product-price">$7.200 ARS</span></div>
+            <div class="product-desc">10 piezas variadas: salmón, atún, pez blanco, camarón.</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20el%20Sashimi%20Moriawase%20(10%20piezas)')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1553621042-f6e147245754?w=500&h=350&fit=crop" alt="Sashimi salmon" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">🍣 Sashimi Salmón</span><span class="product-price">$6.500 ARS</span></div>
+            <div class="product-desc">8 piezas de salmón premium, cortes gruesos.</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20Sashimi%20de%20Salm%C3%B3n%20(8%20piezas)')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platos Calientes y Guarniciones -->
+    <div class="category">
+      <div class="category-title"><i class="fas fa-temperature-high"></i> Platos Calientes</div>
+      <div class="products-grid">
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1591814468924-caf88d1232e1?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Ramen tonkotsu" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">🍜 Ramen Tonkotsu</span><span class="product-price">$6.000 ARS</span></div>
+            <div class="product-desc">Caldo de cerdo, fideos, chashu, huevo marinado, nori.</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20el%20Ramen%20Tonkotsu')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1738681336104-608b4e7dc3b0?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Gyoza" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">🥟 Gyoza (6 uds)</span><span class="product-price">$3.200 ARS</span></div>
+            <div class="product-desc">Empanaditas japonesas de cerdo y vegetales, salsa agridulce.</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20Gyoza%20(6%20unidades)')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bebidas -->
+    <div class="category">
+      <div class="category-title"><i class="fas fa-wine-bottle"></i> Bebidas</div>
+      <div class="products-grid">
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1761095596635-2a7d0a1c428d?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Sake" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">🍶 Sake Junmai</span><span class="product-price">$4.500 ARS</span></div>
+            <div class="product-desc">Botella 300ml, sake suave y aromático.</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20Sake%20Junmai%20(300ml)')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+        <div class="product-card">
+          <img class="product-img" src="https://images.unsplash.com/photo-1749280447307-31a68eb38673?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Té verde" loading="lazy">
+          <div class="product-info">
+            <div class="product-title"><span class="product-name">🍵 Té Matcha Latte</span><span class="product-price">$2.800 ARS</span></div>
+            <div class="product-desc">Bebida caliente o fría con matcha premium y leche vegetal.</div>
+            <button class="btn-whatsapp" onclick="sendToWhatsApp('https://wa.me/5493804123456?text=Hola%20Sushi%20Kai%2C%20quiero%20pedir%20un%20T%C3%A9%20Matcha%20Latte')"><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-info">
+      <div class="address"><i class="fas fa-map-marker-alt"></i> Av. Perón 123, La Rioja Capital</div>
+      <div class="hours">🕒 Mar a Dom 12:00 a 23:00 | Envíos sin cargo en la ciudad</div>
+      <div class="demo-note"><i class="fab fa-whatsapp"></i> Pedí directamente por WhatsApp · Mayo 2026</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Función global para redirigir WhatsApp desde dentro del iframe al top (solución definitiva)
+  function sendToWhatsApp(url) {
+    if (window.top !== window.self) {
+      // Estamos dentro de un iframe (portafolio) -> redirigimos la ventana padre
+      window.top.location.href = url;
+    } else {
+      // Vista directa, redirigimos normal
+      window.location.href = url;
+    }
+  }
+</script>
+</body>
+</html>

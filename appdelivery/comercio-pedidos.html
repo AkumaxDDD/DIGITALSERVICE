@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Comercio · Pedidos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui;
+      background: #0f172a;
+      color: #f1f5f9;
+      padding: 1.5rem;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #1e293b;
+      border-radius: 2rem;
+      padding: 1.5rem;
+    }
+    .pedido-card {
+      background: #334155;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    button { margin: 0.2rem; padding: 0.4rem 0.8rem; border-radius: 0.5rem; border: none; cursor: pointer; }
+    .btn-aceptar { background: #10b981; color: white; }
+    .btn-rechazar { background: #ef4444; color: white; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1><i class="fas fa-clipboard-list"></i> Pedidos recibidos</h1>
+  <div id="pedidosList"></div>
+</div>
+<script>
+  const COMERCIO_ID = 1; // mismo comercio que gestiona productos
+
+  function cargarPedidos() {
+    let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+    // Filtrar pedidos que contengan al menos un item de este comercio
+    const misPedidos = pedidos.filter(pedido =>
+      pedido.items.some(item => item.comercioId === COMERCIO_ID) &&
+      pedido.estado !== 'entregado' && pedido.estado !== 'cancelado'
+    );
+    const container = document.getElementById('pedidosList');
+    if (misPedidos.length === 0) {
+      container.innerHTML = '<p>No hay pedidos pendientes.</p>';
+      return;
+    }
+    container.innerHTML = '';
+    misPedidos.forEach(pedido => {
+      const div = document.createElement('div');
+      div.className = 'pedido-card';
+      const itemsHtml = pedido.items.map(i => `<li>${i.nombre} x ${i.cantidad} = $${(i.precio * i.cantidad).toLocaleString()}</li>`).join('');
+      div.innerHTML = `
+        <h3>Pedido #${pedido.id}</h3>
+        <p><strong>Cliente:</strong> ${pedido.cliente}</p>
+        <p><strong>Fecha:</strong> ${new Date(pedido.fecha).toLocaleString()}</p>
+        <ul>${itemsHtml}</ul>
+        <p><strong>Total:</strong> $${pedido.total.toLocaleString()}</p>
+        <p><strong>Estado actual:</strong> ${pedido.estado}</p>
+        ${pedido.estado === 'pendiente' ? `
+          <button class="btn-aceptar" data-id="${pedido.id}">✅ Aceptar pedido</button>
+          <button class="btn-rechazar" data-id="${pedido.id}">❌ Rechazar</button>
+        ` : ''}
+        ${pedido.estado === 'aceptado' ? '<span style="color:#10b981;">✓ Pedido aceptado, esperando repartidor</span>' : ''}
+      `;
+      if (pedido.estado === 'pendiente') {
+        div.querySelector('.btn-aceptar').addEventListener('click', () => cambiarEstado(pedido.id, 'aceptado'));
+        div.querySelector('.btn-rechazar').addEventListener('click', () => cambiarEstado(pedido.id, 'cancelado'));
+      }
+      container.appendChild(div);
+    });
+  }
+
+  function cambiarEstado(pedidoId, nuevoEstado) {
+    let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+    const index = pedidos.findIndex(p => p.id === pedidoId);
+    if (index !== -1) {
+      pedidos[index].estado = nuevoEstado;
+      localStorage.setItem('pedidos', JSON.stringify(pedidos));
+      cargarPedidos();
+    }
+  }
+
+  cargarPedidos();
+</script>
+</body>
+</html>

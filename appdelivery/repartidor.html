@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Repartidor · AppDelivery</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui;
+      background: #0f172a;
+      color: #f1f5f9;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #1e293b;
+      border-radius: 2rem;
+      padding: 1.5rem;
+    }
+    h1, h2 { color: #f97316; margin-bottom: 1rem; }
+    .pedido-card {
+      background: #334155;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    button {
+      background: #f97316;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      color: white;
+      cursor: pointer;
+      margin: 0.2rem;
+    }
+    .btn-tomar { background: #3b82f6; }
+    .btn-estado { background: #10b981; }
+    .map {
+      height: 300px;
+      margin: 0.5rem 0;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+    .info-ubicacion { background: #0f172a; padding: 0.5rem; border-radius: 0.5rem; margin: 0.5rem 0; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🏍️ Repartidor · Carlos Moto</h1>
+  <div class="info-ubicacion">
+    <i class="fas fa-map-marker-alt"></i> Haz clic en el mapa para cambiar tu ubicación actual.<br>
+    La ruta se actualizará automáticamente hacia el destino según el estado del pedido.
+  </div>
+  <div id="mapa" class="map"></div>
+  <button id="btnActualizarUbicacion" style="margin-bottom: 1rem;">📍 Usar mi ubicación actual (simulada desde el mapa)</button>
+  <h2>📢 Pedidos disponibles</h2>
+  <div id="disponibles"></div>
+  <h2>🛵 Mis pedidos asignados</h2>
+  <div id="asignados"></div>
+</div>
+
+<script>
+  // Datos fijos
+  const REPARTIDOR_ID = 1;
+  const REPARTIDOR_NOMBRE = "Carlos Moto";
+  // Ubicaciones fijas de comercio y cliente (para demo)
+  const COMERCIO_UBICACION = { lat: -29.413, lng: -66.856 }; // Burger House
+  const CLIENTE_UBICACION = { lat: -29.430, lng: -66.857 }; // Cliente demo
+
+  let mapa;
+  let marcadorRepartidor;
+  let rutaControl = null;
+  let ubicacionActual = { lat: -29.421, lng: -66.856 }; // punto medio inicial
+  let pedidoActual = null; // pedido asignado que está en proceso
+
+  // Inicializar mapa
+  function initMap() {
+    mapa = L.map('mapa').setView([ubicacionActual.lat, ubicacionActual.lng], 13);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+    }).addTo(mapa);
+    marcadorRepartidor = L.marker([ubicacionActual.lat, ubicacionActual.lng], { draggable: true }).addTo(mapa)
+      .bindTooltip('Tu ubicación actual').openTooltip();
+    marcadorRepartidor.on('dragend', (e) => {
+      const pos = e.target.getLatLng();
+      ubicacionActual = { lat: pos.lat, lng: pos.lng };
+      actualizarUbicacionEnPedidos();
+      if (pedidoActual) dibujarRuta();
+    });
+    mapa.on('click', (e) => {
+      ubicacionActual = e.latlng;
+      marcadorRepartidor.setLatLng(ubicacionActual);
+      actualizarUbicacionEnPedidos();
+      if (pedidoActual) dibujarRuta();
+    });
+  }
+
+  // Guardar ubicación en todos los pedidos asignados no terminados
+  function actualizarUbicacionEnPedidos() {
+    let pedidos = obtenerPedidos();
+    let actualizado = false;
+    pedidos = pedidos.map(p => {
+      if (p.repartidorId === REPARTIDOR_ID && p.estado !== 'entregado' && p.estado !== 'rechazado') {
+        p.ubicacionRepartidor = { lat: ubicacionActual.lat, lng: ubicacionActual.lng };
+        actualizado = true;
+      }
+      return p;
+    });
+    if (actualizado) {
+      guardarPedidos(pedidos);
+      // Forzar actualización en cliente y comercio (evento storage ya lo manejarán)
+    }
+  }
+
+  // Obtener pedidos y productos desde localStorage
+  function obtenerPedidos() { return JSON.parse(localStorage.getItem('pedidos')) || []; }
+  function guardarPedidos(pedidos) { localStorage.setItem('pedidos', JSON.stringify(pedidos)); }
+
+  // Dibujar ruta desde ubicación actual hasta destino según estado del pedido
+  function dibujarRuta() {
+    if (!pedidoActual) return;
+    let destino = null;
+    if (pedidoActual.estado === 'aceptado' || pedidoActual.estado === 'recogido') {
+      // Ir al comercio
+      destino = COMERCIO_UBICACION;
+    } else if (pedidoActual.estado === 'en_camino') {
+      // Ir al cliente
+      destino = CLIENTE_UBICACION;
+    }
+    if (destino) {
+      if (rutaControl) mapa.removeControl(rutaControl);
+      rutaControl = L.Routing.control({
+        waypoints: [
+          L.latLng(ubicacionActual.lat, ubicacionActual.lng),
+          L.latLng(destino.lat, destino.lng)
+        ],
+        router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1/' }),
+        routeWhileDragging: true,
+        showAlternatives: false,
+        lineOptions: { styles: [{ color: '#f97316', weight: 4 }] }
+      }).addTo(mapa);
+    } else {
+      if (rutaControl) mapa.removeControl(rutaControl);
+    }
+  }
+
+  function cargarPedidoActual() {
+    const pedidos = obtenerPedidos();
+    const asignado = pedidos.find(p => p.repartidorId === REPARTIDOR_ID && p.estado !== 'entregado' && p.estado !== 'rechazado');
+    if (asignado) {
+      pedidoActual = asignado;
+      dibujarRuta();
+    } else {
+      pedidoActual = null;
+      if (rutaControl) mapa.removeControl(rutaControl);
+    }
+    renderPaneles();
+  }
+
+  function renderPaneles() {
+    let pedidos = obtenerPedidos();
+    const disponibles = pedidos.filter(p => p.estado === 'aceptado' && !p.repartidorId);
+    const asignados = pedidos.filter(p => p.repartidorId === REPARTIDOR_ID && p.estado !== 'entregado' && p.estado !== 'rechazado');
+
+    const divDisp = document.getElementById('disponibles');
+    if (disponibles.length === 0) divDisp.innerHTML = '<p>No hay pedidos disponibles.</p>';
+    else {
+      divDisp.innerHTML = '';
+      disponibles.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'pedido-card';
+        div.innerHTML = `<h3>Pedido #${p.id}</h3><p>Cliente: ${p.cliente}</p><p>Total: $${p.total.toLocaleString()}</p><p>Comercio: ${p.items[0]?.comercioNombre}</p><button class="btn-tomar" data-id="${p.id}">📦 Tomar pedido</button>`;
+        div.querySelector('button').addEventListener('click', () => tomarPedido(p.id));
+        divDisp.appendChild(div);
+      });
+    }
+
+    const divAsig = document.getElementById('asignados');
+    if (asignados.length === 0) divAsig.innerHTML = '<p>No tienes pedidos asignados.</p>';
+    else {
+      divAsig.innerHTML = '';
+      asignados.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'pedido-card';
+        let botones = '';
+        if (p.estado === 'aceptado') botones = `<button class="btn-estado" data-id="${p.id}" data-estado="recogido">🛵 Recogido (ir al comercio)</button>`;
+        else if (p.estado === 'recogido') botones = `<button class="btn-estado" data-id="${p.id}" data-estado="en_camino">🚚 En camino (ir al cliente)</button>`;
+        else if (p.estado === 'en_camino') botones = `<button class="btn-estado" data-id="${p.id}" data-estado="entregado">✅ Entregado</button>`;
+        div.innerHTML = `<h3>Pedido #${p.id}</h3><p>Cliente: ${p.cliente}</p><p>Estado: ${p.estado}</p>${botones}`;
+        if (botones) {
+          const btn = div.querySelector('.btn-estado');
+          if (btn) btn.addEventListener('click', () => actualizarEstado(p.id, btn.dataset.estado));
+        }
+        divAsig.appendChild(div);
+      });
+    }
+    cargarPedidoActual(); // para refrescar ruta
+  }
+
+  function tomarPedido(pedidoId) {
+    let pedidos = obtenerPedidos();
+    const idx = pedidos.findIndex(p => p.id === pedidoId);
+    if (idx !== -1 && pedidos[idx].estado === 'aceptado' && !pedidos[idx].repartidorId) {
+      pedidos[idx].repartidorId = REPARTIDOR_ID;
+      pedidos[idx].ubicacionRepartidor = { lat: ubicacionActual.lat, lng: ubicacionActual.lng };
+      guardarPedidos(pedidos);
+      renderPaneles();
+    } else alert('Pedido no disponible');
+  }
+
+  function actualizarEstado(pedidoId, nuevoEstado) {
+    let pedidos = obtenerPedidos();
+    const idx = pedidos.findIndex(p => p.id === pedidoId);
+    if (idx !== -1 && pedidos[idx].repartidorId === REPARTIDOR_ID) {
+      pedidos[idx].estado = nuevoEstado;
+      if (nuevoEstado === 'entregado') {
+        pedidos[idx].ubicacionRepartidor = null; // limpiar ubicación al entregar
+      } else {
+        pedidos[idx].ubicacionRepartidor = { lat: ubicacionActual.lat, lng: ubicacionActual.lng };
+      }
+      guardarPedidos(pedidos);
+      renderPaneles();
+    }
+  }
+
+  document.getElementById('btnActualizarUbicacion').addEventListener('click', () => {
+    actualizarUbicacionEnPedidos();
+    if (pedidoActual) dibujarRuta();
+    alert('Ubicación actualizada y guardada');
+  });
+
+  initMap();
+  renderPaneles();
+  // Escuchar cambios en localStorage para actualizar paneles
+  window.addEventListener('storage', () => renderPaneles());
+  setInterval(renderPaneles, 3000);
+</script>
+</body>
+</html>
