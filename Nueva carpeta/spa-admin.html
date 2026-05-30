@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Spa Zen · Administración</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1e2a2a;
+      font-family: 'Segoe UI', system-ui;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fffaf2;
+      border-radius: 2rem;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    .header {
+      background: #2e3b2c;
+      color: #fef7e0;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .content { padding: 2rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    th { background: #7d9c7a; color: white; }
+    .btn-cancel {
+      background: #c92a1f;
+      color: white;
+      border: none;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .btn-cancel:hover { background: #a00; }
+    .mensaje { margin-top: 1rem; padding: 0.5rem; background: #eef3e6; border-radius: 1rem; }
+    .stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .stat-card {
+      background: #eef3e6;
+      padding: 0.8rem;
+      border-radius: 1rem;
+      flex: 1;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-user-shield"></i> Administración Spa Zen</h1>
+    <p>Gestión de reservas (ejemplo)</p>
+  </div>
+  <div class="content">
+    <div class="stats" id="stats"></div>
+    <div id="reservasList"></div>
+    <div class="mensaje" id="mensaje"></div>
+  </div>
+</div>
+
+<script>
+  const CAPACIDAD = 2;
+  function cargarReservas() {
+    const stored = localStorage.getItem("spa_reservas");
+    return stored ? JSON.parse(stored) : [];
+  }
+  function guardarReservas(reservas) {
+    localStorage.setItem("spa_reservas", JSON.stringify(reservas));
+  }
+
+  function mostrarReservas() {
+    const reservas = cargarReservas();
+    const container = document.getElementById("reservasList");
+    const statsDiv = document.getElementById("stats");
+    if (reservas.length === 0) {
+      container.innerHTML = "<p>No hay reservas registradas.</p>";
+      statsDiv.innerHTML = "";
+      return;
+    }
+    // Estadísticas
+    const total = reservas.length;
+    const porFecha = {};
+    reservas.forEach(r => { porFecha[r.fecha] = (porFecha[r.fecha] || 0) + 1; });
+    const fechasOrdenadas = Object.keys(porFecha).sort();
+    let statsHtml = `<div class="stat-card">📅 Total reservas: ${total}</div>`;
+    fechasOrdenadas.forEach(f => {
+      statsHtml += `<div class="stat-card">🗓️ ${f}: ${porFecha[f]} turno(s)</div>`;
+    });
+    statsDiv.innerHTML = statsHtml;
+
+    // Tabla
+    let html = `<table>
+      <thead><tr><th>ID</th><th>Cliente</th><th>Fecha</th><th>Horario</th><th>Acción</th></tr></thead><tbody>`;
+    reservas.sort((a,b) => a.fecha.localeCompare(b.fecha)).forEach(r => {
+      html += `<tr>
+        <td>${r.id}</td>
+        <td>${escapeHtml(r.nombre)}</td>
+        <td>${r.fecha}</td>
+        <td>${r.horario}</td>
+        <td><button class="btn-cancel" onclick="cancelarReserva(${r.id})">Cancelar</button></td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+  }
+
+  function cancelarReserva(id) {
+    let reservas = cargarReservas();
+    const nuevas = reservas.filter(r => r.id !== id);
+    guardarReservas(nuevas);
+    mostrarReservas();
+    document.getElementById("mensaje").innerHTML = `<span style="color:#2e7d32;">✅ Reserva cancelada correctamente.</span>`;
+    setTimeout(() => document.getElementById("mensaje").innerHTML = "", 3000);
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  window.cancelarReserva = cancelarReserva;
+  mostrarReservas();
+</script>
+</body>
+</html>

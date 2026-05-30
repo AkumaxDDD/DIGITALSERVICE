@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Fintech Startup · Dashboard Pitch</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Scroll personalizado */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f0e17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #7c3aed;
+      border-radius: 10px;
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #7c3aed #0f0e17;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f0e17 0%, #1a1a2e 100%);
+      padding: 1.5rem;
+      min-height: 100vh;
+    }
+
+    /* Contenedor principal */
+    .dashboard {
+      max-width: 1300px;
+      margin: 0 auto;
+      background: rgba(15, 14, 23, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 2rem;
+      overflow: hidden;
+      border: 1px solid rgba(124, 58, 237, 0.4);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Header */
+    .header {
+      padding: 1.5rem 2rem;
+      background: rgba(0, 0, 0, 0.4);
+      border-bottom: 1px solid rgba(124, 58, 237, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa, #7c3aed);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .badge {
+      background: rgba(124, 58, 237, 0.2);
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      color: #c4b5fd;
+    }
+
+    /* KPIs */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+      padding: 1.8rem 2rem;
+    }
+    .kpi-card {
+      background: rgba(30, 27, 46, 0.7);
+      backdrop-filter: blur(4px);
+      border-radius: 1.2rem;
+      padding: 1.2rem;
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      transition: transform 0.2s;
+    }
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      border-color: #7c3aed;
+    }
+    .kpi-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: #a78bfa;
+      letter-spacing: 1px;
+    }
+    .kpi-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: white;
+      margin: 0.3rem 0;
+    }
+    .kpi-change {
+      font-size: 0.7rem;
+      color: #4ade80;
+    }
+    .kpi-change.negative {
+      color: #f87171;
+    }
+
+    /* Gráficos */
+    .charts-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      padding: 0 2rem 1.5rem;
+    }
+    .chart-card {
+      flex: 1;
+      min-width: 260px;
+      background: rgba(30, 27, 46, 0.5);
+      border-radius: 1.2rem;
+      padding: 1rem;
+      border: 1px solid rgba(124, 58, 237, 0.2);
+    }
+    .chart-card h3 {
+      color: white;
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+    }
+    canvas {
+      max-height: 220px;
+      width: 100%;
+    }
+
+    /* Proyección y CTA */
+    .projection {
+      background: linear-gradient(135deg, #7c3aed20, #a78bfa20);
+      margin: 1rem 2rem 2rem;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .projection h2 {
+      color: white;
+      font-size: 1.4rem;
+    }
+    .projection p {
+      color: #cbd5e1;
+      margin: 0.5rem 0;
+    }
+    .btn-whatsapp {
+      background: #25D366;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 60px;
+      font-weight: 700;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 0.8rem;
+      font-size: 1rem;
+    }
+    .btn-whatsapp:hover {
+      background: #1da15b;
+      transform: scale(1.02);
+    }
+
+    /* Footer */
+    .footer {
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.7rem;
+      color: #94a3b8;
+      border-top: 1px solid rgba(124, 58, 237, 0.2);
+    }
+
+    @media (max-width: 700px) {
+      body { padding: 0.8rem; }
+      .kpi-value { font-size: 1.6rem; }
+      .charts-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard">
+  <div class="header">
+    <div class="logo"><i class="fas fa-chart-line"></i> Fintech Startup</div>
+    <div class="badge"><i class="fas fa-rocket"></i> Pitch Deck · Pre-seed round 2026</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-title"><i class="fas fa-users"></i> Usuarios activos</div>
+      <div class="kpi-value" id="usuarios">128.4K</div>
+      <div class="kpi-change"><i class="fas fa-arrow-up"></i> +22% vs mes anterior</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title"><i class="fas fa-dollar-sign"></i> Volumen transaccional (TTM)</div>
+      <div class="kpi-value" id="volumen">$4.2M</div>
+      <div class="kpi-change"><i class="fas fa-arrow-up"></i> +67% crecimiento anual</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title"><i class="fas fa-charging-station"></i> Tasa de retención (D30)</div>
+      <div class="kpi-value" id="retencion">87%</div>
+      <div class="kpi-change">+5% vs benchmark</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title"><i class="fas fa-wallet"></i> Ticket promedio</div>
+      <div class="kpi-value" id="ticket">$32.500</div>
+      <div class="kpi-change"><i class="fas fa-arrow-up"></i> +12%</div>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>📈 Crecimiento de usuarios (últimos 6 meses)</h3>
+      <canvas id="userGrowthChart" width="400" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>💰 Ingresos mensuales (en miles de ARS)</h3>
+      <canvas id="revenueChart" width="400" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Proyección y llamado a inversores -->
+  <div class="projection">
+    <h2><i class="fas fa-chart-simple"></i> Proyección 2027</h2>
+    <p>Estimamos alcanzar <strong>500K usuarios</strong> y <strong>$18.5M ARS</strong> en volumen transaccional al cierre del próximo año.</p>
+    <p>🔒 Ronda semilla abierta · Buscamos inversores estratégicos.</p>
+    <button class="btn-whatsapp" onclick="contactarWhatsApp()">
+      <i class="fab fa-whatsapp"></i> Contactar para invertir
+    </button>
+  </div>
+
+  <div class="footer">
+    <i class="fas fa-chart-line"></i> Datos actualizados a Mayo 2026 · Demo interactiva para pitch
+  </div>
+</div>
+
+<script>
+  // Gráfico de crecimiento de usuarios
+  const ctx1 = document.getElementById('userGrowthChart').getContext('2d');
+  new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+      datasets: [{
+        label: 'Usuarios (miles)',
+        data: [42, 58, 79, 102, 118, 128.4],
+        borderColor: '#7c3aed',
+        backgroundColor: 'rgba(124, 58, 237, 0.1)',
+        tension: 0.3,
+        fill: true,
+        pointBackgroundColor: '#a78bfa'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: { legend: { labels: { color: '#cbd5e1' } } },
+      scales: { y: { ticks: { color: '#cbd5e1' }, grid: { color: '#334155' } }, x: { ticks: { color: '#cbd5e1' } } }
+    }
+  });
+
+  // Gráfico de ingresos mensuales (en miles ARS)
+  const ctx2 = document.getElementById('revenueChart').getContext('2d');
+  new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+      datasets: [{
+        label: 'Ingresos (miles ARS)',
+        data: [180, 245, 320, 410, 475, 520],
+        backgroundColor: '#7c3aed',
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: { legend: { labels: { color: '#cbd5e1' } } },
+      scales: { y: { ticks: { color: '#cbd5e1' }, grid: { color: '#334155' } }, x: { ticks: { color: '#cbd5e1' } } }
+    }
+  });
+
+  // Animación de conteo para los KPIs (efecto dinámico)
+  function animateValue(element, start, end, suffix = '', isCurrency = false) {
+    let current = start;
+    const step = Math.ceil((end - start) / 50);
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= end) {
+        current = end;
+        clearInterval(timer);
+      }
+      if (isCurrency) {
+        element.innerText = '$' + current.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix;
+      } else if (typeof current === 'number') {
+        if (element.id === 'usuarios') element.innerText = current.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix;
+        else if (element.id === 'volumen') element.innerText = '$' + current.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix;
+        else if (element.id === 'retencion') element.innerText = current.toFixed(0) + suffix;
+        else if (element.id === 'ticket') element.innerText = '$' + current.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix;
+        else element.innerText = current + suffix;
+      }
+    }, 30);
+  }
+
+  // Cargar animaciones después de que la página esté lista
+  window.onload = () => {
+    animateValue(document.getElementById('usuarios'), 0, 128.4, 'K');
+    animateValue(document.getElementById('volumen'), 0, 4.2, 'M', true);
+    animateValue(document.getElementById('retencion'), 0, 87, '%');
+    animateValue(document.getElementById('ticket'), 0, 32500, '', true);
+  };
+
+  // Función para contacto por WhatsApp (redirige al top si está en iframe)
+  function contactarWhatsApp() {
+    const url = 'https://wa.me/5493804123456?text=Hola%2C%20vi%20el%20dashboard%20pitch%20de%20Fintech%20Startup%20y%20estoy%20interesado%20en%20invertir.';
+    if (window.top !== window.self) {
+      window.top.location.href = url;
+    } else {
+      window.location.href = url;
+    }
+  }
+</script>
+</body>
+</html>
